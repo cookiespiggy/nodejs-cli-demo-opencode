@@ -23,5 +23,47 @@ program
     console.log(`你好, ${options.name}!`);
   });
 
+// 注册 calc 命令
+program
+  .command('calc')
+  .description('进行四则运算')
+  .argument('<num1>', '第一个数字')
+  .argument('<num2>', '第二个数字')
+  .option('-o, --operator <operator>', '运算符 (add/subtract/multiply/divide)', 'add')
+  .action((num1, num2, options) => {
+    const a = parseFloat(num1);
+    const b = parseFloat(num2);
+
+    if (isNaN(a) || isNaN(b)) {
+      console.error('错误: 请输入有效的数字');
+      process.exit(1);
+    }
+
+    let result;
+    switch (options.operator) {
+      case 'add':
+        result = a + b;
+        break;
+      case 'subtract':
+        result = a - b;
+        break;
+      case 'multiply':
+        result = a * b;
+        break;
+      case 'divide':
+        if (b === 0) {
+          console.error('错误: 除数不能为零');
+          process.exit(1);
+        }
+        result = a / b;
+        break;
+      default:
+        console.error(`错误: 未知的运算符 "${options.operator}"，请使用 add/subtract/multiply/divide`);
+        process.exit(1);
+    }
+
+    console.log(`结果: ${result}`);
+  });
+
 // 解析命令行参数
 program.parse();
