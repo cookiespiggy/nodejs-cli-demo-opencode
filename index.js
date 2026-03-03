@@ -1,9 +1,33 @@
 #!/usr/bin/env node
 
-// 引入 commander 库，用于构建 CLI 工具
 const { Command } = require('commander');
+const fs = require('fs');
+const path = require('path');
 
-// 创建命令程序实例
+const HISTORY_FILE = path.join(process.env.HOME || process.env.USERPROFILE, '.cli-history.json');
+
+function loadHistory() {
+  try {
+    if (fs.existsSync(HISTORY_FILE)) {
+      return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf-8'));
+    }
+  } catch (e) {
+    return [];
+  }
+  return [];
+}
+
+function saveHistory(history) {
+  fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+}
+
+function addToHistory(entry) {
+  const history = loadHistory();
+  history.unshift(entry);
+  if (history.length > 100) history.pop();
+  saveHistory(history);
+}
+
 const program = new Command();
 
 // 设置程序名称和版本
@@ -63,6 +87,39 @@ program
     }
 
     console.log(`结果: ${result}`);
+
+    addToHistory({
+      timestamp: new Date().toISOString(),
+      num1: a,
+      num2: b,
+      operator: options.operator,
+      result: result
+    });
+  });
+
+// 注册 history 命令
+program
+  .command('history')
+  .description('显示计算历史记录')
+  .option('-c, --clear', '清空所有历史记录')
+  .action((options) => {
+    if (options.clear) {
+      saveHistory([]);
+      console.log('历史记录已清空');
+      return;
+    }
+
+    const history = loadHistory();
+    if (history.length === 0) {
+      console.log('暂无历史记录');
+      return;
+    }
+
+    console.log('=== 计算历史 ===');
+    history.forEach((entry, index) => {
+      const time = new Date(entry.timestamp).toLocaleString();
+      console.log(`${index + 1}. ${entry.num1} ${entry.operator} ${entry.num2} = ${entry.result} (${time})`);
+    });
   });
 
 // 解析命令行参数
