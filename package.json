@@ -1,0 +1,22 @@
+{
+  "name": "my-cli-tool",
+  "version": "1.0.0",
+  "description": "一个简单的 Node.js CLI 工具，使用 commander 库",
+  "main": "index.js",
+  "bin": {
+    "my-cli": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "commander",
+    "tool"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0"
+  }
+}
